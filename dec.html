@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>希沃管家激活码-简易工具</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    label {
+      text-align: center;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input[type="text"] {
+      width: calc(80%);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      font-size: 1em;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #url {
+      text-align: center;
+      margin-top: 20px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    p {
+      margin-top: 10px;
+      text-align: center;
+      display: block;
+      margin: 0 auto;
+    }
+
+    a {
+      text-align: center;
+      display: block;
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 4%;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+
+<body>
+  <h1>通过deviceId生成激活码URL</h1>
+  <label for="deviceId">输入deviceId:</label>
+  <input type="text" id="deviceId" placeholder="Enter deviceId">
+  <button onclick="generateQRCode()">生成</button>
+  <div id="url"></div>
+
+  <h1>通过激活码二维url和deviceId解密激活码</h1>
+  <label for="urlInput">输入激活码二维url:</label>
+  <input type="text" id="urlInput"><br>
+  <label for="deviceIdInput">deviceId(自动获取):</label>
+  <input type="text" id="deviceIdInput"><br>
+  <button onclick="decryptActivationCode()">解密</button><br>
+  <p id="result"></p>
+
+  <script>
+    function md5(str) {
+      return CryptoJS.MD5(str).toString();
+    }
+
+    const re = {
+      a: {
+        encrypt: (str, key) => CryptoJS.AES.encrypt(str, key).toString(),
+        decrypt: (str, key) => CryptoJS.AES.decrypt(str, key).toString(CryptoJS.enc.Utf8)
+      }
+    };
+
+    const VwebConfig = {
+      activationCodeUnlockTargetUrl: 'https://campus.seewo.com/hugo-mobile/#/offlinelock'
+    };
+
+    function generateQRCode() {
+      const deviceId = document.getElementById('deviceId').value;
+
+      class ActivationCode {
+        constructor() {
+          this.password = null;
+          this.clearTextKey = new Date().getTime();
+          this.ciphertextKey = "";
+          this.BOARD_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+        }
+
+        newPassword() {
+          let password = "";
+          for (let i = 0; i < 6; i++) {
+            password += Math.floor(10 * Math.random());
+          }
+          this.password = password;
+        }
+
+        newCiphertextKey() {
+          this.ciphertextKey = md5(this.clearTextKey + "" + deviceId);
+        }
+
+        newQrcode() {
+          const password = re.a.encrypt(this.password, this.ciphertextKey.toString());
+          const t = VwebConfig.activationCodeUnlockTargetUrl;
+          const qrcodeUrl = t + "?_d=" + deviceId + "&_k=" + this.clearTextKey + "&_p=" + encodeURIComponent(password.toString());
+          document.getElementById('url').innerHTML = `<div>生成的url: </br><a href="${qrcodeUrl}" target="_blank">${qrcodeUrl}</a></div>`;
+        }
+      }
+
+      const code = new ActivationCode();
+      code.newPassword();
+      code.newCiphertextKey();
+      code.newQrcode();
+    }
+
+    function parseUrl(url) {
+      const params = {};
+      const urlParts = url.split("?");
+      if (urlParts.length > 1) {
+        const queryString = urlParts[1];
+        const pairs = queryString.split("&");
+        pairs.forEach(pair => {
+          const keyValue = pair.split("=");
+          params[keyValue[0]] = decodeURIComponent(keyValue[1]);
+        });
+      }
+      return params;
+    }
+
+    function decryptActivationCode() {
+      const url = document.getElementById("urlInput").value;
+
+      const urlParams = parseUrl(url);
+
+      const deviceId = urlParams["_d"]; // Automatically extract deviceId from URL
+      document.getElementById("deviceIdInput").value = deviceId; // Set the extracted deviceId in the input field
+
+      const ciphertextKey = md5(urlParams["_k"] + deviceId);
+      const decryptedPassword = re.a.decrypt(urlParams["_p"], ciphertextKey);
+
+      document.getElementById("result").innerText = "激活码: " + decryptedPassword;
+    }
+  </script>
+</body>
+
+</html>
