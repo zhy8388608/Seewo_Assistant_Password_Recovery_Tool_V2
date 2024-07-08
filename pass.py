@@ -7,7 +7,7 @@ def md5(text):
 hugo = md5('hugo')
 
 def enc(pwd):
-	return md5(md5(pwd) +hugo)[8:24]
+	return md5(md5(pwd) + hugo)[8:24]
 
 def trypwd(tar):
 	for i in range(0,1000000):
@@ -17,7 +17,7 @@ def trypwd(tar):
 	return None
 
 def main():
-	print('计算还原密码请用记事本打开 C:\\ProgramData\\Seewo\\SeewoCore\\SeewoCore.ini 并记录 PASSWORDV2 的值\n计算锁屏密码请用记事本打开 C:\\Users\\当前用户名\\AppData\\Seewo\\SeewoAbility\\SeewoLockConfig.ini 并记录 LockPasswardV2 的值')
+	print('计算还原密码请用记事本打开 C:\\ProgramData\\Seewo\\SeewoCore\\SeewoCore.ini 并记录 PASSWORDV2 的值\n计算锁屏密码请用记事本打开 C:\\Users\\当前用户名\\Roaming\\AppData\\Seewo\\SeewoAbility\\SeewoLockConfig.ini 并记录 LockPasswardV2 的值')
 	tar = input('请输入值：')
 	print('正在计算...')
 	ans = trypwd(tar)
