@@ -39,6 +39,8 @@ def main():
         print("管理员密码是 "+trypwd(cipher1))
     if cipher2 != None:
         print("锁屏密码是 "+trypwd(cipher2))
+    os.system('pause ')
+
 
 
 if __name__ == '__main__':
