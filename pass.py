@@ -29,12 +29,17 @@ def find_cipher(file):
     content = file.readlines()
     for line in content:
         if line.split("=")[0].lower() == "passwordv2" or line.split("=")[0].lower() == "lockpasswardv2":
-            return line.split("=")[-1].replace("\n","")
+            return line.split("=")[-1].replace("\n", "")
 
 
-cipher1 = find_cipher(file1)
-cipher2 = find_cipher(file2)
-if cipher1 != None:
-    print(trypwd(cipher1))
-if cipher2 != None:
-    print(trypwd(cipher2))
+def main():
+    cipher1 = find_cipher(file1)
+    cipher2 = find_cipher(file2)
+    if cipher1 != None:
+        print("管理员密码是 "+trypwd(cipher1))
+    if cipher2 != None:
+        print("锁屏密码是 "+trypwd(cipher2))
+
+
+if __name__ == '__main__':
+    main()
